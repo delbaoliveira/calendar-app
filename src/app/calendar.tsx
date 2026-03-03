@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { UserButton } from "@clerk/nextjs";
 import { createEvent, deleteEvent } from "./actions";
 
 type CalendarEvent = {
@@ -133,12 +134,15 @@ export default function Calendar() {
               Click on a day to add an event
             </p>
           </div>
-          <button
-            onClick={goToToday}
-            className="text-sm px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            Today
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={goToToday}
+              className="text-sm px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Today
+            </button>
+            <UserButton />
+          </div>
         </div>
 
         {/* Month Navigation */}

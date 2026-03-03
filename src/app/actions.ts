@@ -1,9 +1,15 @@
 "use server";
 
-import { getDb } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
+import { events } from "@/lib/schema";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function createEvent(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
   const title = formData.get("title") as string;
   const date = formData.get("date") as string;
   const color = formData.get("color") as string;
@@ -12,13 +18,20 @@ export async function createEvent(formData: FormData) {
     return { error: "Title and date are required" };
   }
 
-  const sql = getDb();
-  await sql`INSERT INTO events (title, date, color) VALUES (${title}, ${date}, ${color || "#3b82f6"})`;
+  await db.insert(events).values({
+    userId,
+    title,
+    date,
+    color: color || "#3b82f6",
+  });
+
   revalidatePath("/");
 }
 
 export async function deleteEvent(id: number) {
-  const sql = getDb();
-  await sql`DELETE FROM events WHERE id = ${id}`;
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  await db.delete(events).where(and(eq(events.id, id), eq(events.userId, userId)));
   revalidatePath("/");
 }
